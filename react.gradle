@@ -22,6 +22,7 @@ def detectEntryFile(config) {
 }
 
 def cliPath = config.cliPath ?: "node_modules/react-native/cli.js"
+config.cliPath = cliPath
 def composeSourceMapsPath = config.composeSourceMapsPath ?: "node_modules/react-native/scripts/compose-source-maps.js"
 def bundleAssetName = config.bundleAssetName ?: "index.android.bundle"
 def entryFile = detectEntryFile(config)
