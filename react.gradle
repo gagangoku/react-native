@@ -89,7 +89,7 @@ afterEvaluate {
 
         def execCommand = []
 
-        if (config.cliPath || config.nodeExecutableAndArgs) {
+        if (cliPath || config.nodeExecutableAndArgs) {
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                 execCommand.addAll(["cmd", "/c", *nodeExecutableAndArgs, cliPath])
             } else {

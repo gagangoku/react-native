@@ -1,13 +1,18 @@
-/**
+/*
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
- * <p>This source code is licensed under the MIT license found in the LICENSE file in the root
- * directory of this source tree.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  */
+
 package com.facebook.react.bridge;
 
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.util.Log;
+
 import androidx.annotation.Nullable;
+
 import java.lang.reflect.Array;
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -15,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 public class Arguments {
+  private static final String TAG = "ReactNative.Arguments";
+
   private static Object makeNativeObject(Object object) {
     if (object == null) {
       return null;
@@ -66,7 +73,7 @@ public class Arguments {
       } else if (elem instanceof WritableNativeMap) {
         nativeArray.pushMap((WritableNativeMap) elem);
       } else {
-        throw new IllegalArgumentException("Could not convert " + elem.getClass());
+        Log.e(TAG, "makeNativeArray: Could not convert: " + elem.getClass());
       }
     }
     return nativeArray;
@@ -111,7 +118,7 @@ public class Arguments {
     } else if (value instanceof WritableNativeMap) {
       nativeMap.putMap(key, (WritableNativeMap) value);
     } else {
-      throw new IllegalArgumentException("Could not convert " + value.getClass());
+      Log.e(TAG, "addEntry: Could not convert: " + value.getClass());
     }
   }
 
@@ -178,7 +185,7 @@ public class Arguments {
       } else if (argumentClass == WritableNativeArray.class) {
         arguments.pushArray((WritableNativeArray) argument);
       } else {
-        throw new RuntimeException("Cannot convert argument of type " + argumentClass);
+        Log.e(TAG, "fromJavaArgs: Cannot convert argument of type: " + argumentClass);
       }
     }
     return arguments;
@@ -218,8 +225,16 @@ public class Arguments {
       for (boolean v : (boolean[]) array) {
         catalystArray.pushBoolean(v);
       }
+    } else if (array instanceof Parcelable[]) {
+      for (Parcelable v : (Parcelable[]) array) {
+        if (v instanceof Bundle) {
+          catalystArray.pushMap(fromBundle((Bundle) v));
+        } else {
+          Log.e(TAG, "fromArray: Unexpected array member type: " + v.getClass());
+        }
+      }
     } else {
-      throw new IllegalArgumentException("Unknown array type " + array.getClass());
+      Log.e(TAG, "fromArray: Unknown array type: " + array.getClass());
     }
     return catalystArray;
   }
@@ -254,7 +269,7 @@ public class Arguments {
       } else if (obj instanceof Boolean) {
         catalystArray.pushBoolean((Boolean) obj);
       } else {
-        throw new IllegalArgumentException("Unknown value type " + obj.getClass());
+        Log.e(TAG, "fromArray: Unknown value type: " + obj.getClass());
       }
     }
     return catalystArray;
@@ -299,7 +314,7 @@ public class Arguments {
       } else if (value instanceof List) {
         map.putArray(key, fromList((List) value));
       } else {
-        throw new IllegalArgumentException("Could not convert " + value.getClass());
+        Log.e(TAG, "fromBundle: Could not convert: " + value.getClass());
       }
     }
     return map;
@@ -347,7 +362,7 @@ public class Arguments {
           list.add(toList(readableArray.getArray(i)));
           break;
         default:
-          throw new IllegalArgumentException("Could not convert object in array.");
+          Log.e(TAG, "toList: Could not convert object in array");
       }
     }
 
@@ -394,7 +409,7 @@ public class Arguments {
           bundle.putSerializable(key, toList(readableMap.getArray(key)));
           break;
         default:
-          throw new IllegalArgumentException("Could not convert object with key: " + key + ".");
+          Log.e(TAG, "toBundle: Could not convert object with key: " + key);
       }
     }
 
